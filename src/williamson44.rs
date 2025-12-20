@@ -2,6 +2,20 @@ use std::collections::HashMap;
 use rayon::prelude::*;
 use std::time::Instant;
 
+use serde::Serialize;
+use std::fs::File;
+use std::io::Write;
+
+#[derive(Serialize)]
+struct HadamardResult {
+    n: usize,
+    m: usize,
+    a: Vec<i8>,
+    b: Vec<i8>,
+    c: Vec<i8>,
+    d: Vec<i8>,
+}
+
 fn paf(seq: &[i8], s: usize) -> i32 {
     let n = seq.len();
     let mut sum = 0;
@@ -83,6 +97,7 @@ fn solve_williamson_44() {
             println!("B: {:?}", candidates[ib]);
             println!("C: {:?}", candidates[ic]);
             println!("D: {:?}", candidates[id]);
+            save_results(44, 11, candidates[ia].clone(), candidates[ib].clone(), candidates[ic].clone(), candidates[id].clone());
         }
         None => println!("\n>>> FAILURE: No Williamson structure for m=11."),
     }
@@ -91,4 +106,11 @@ fn solve_williamson_44() {
 
 fn main() {
     solve_williamson_44();
+}
+
+fn save_results(n: usize, m: usize, a: Vec<i8>, b: Vec<i8>, c: Vec<i8>, d: Vec<i8>) {
+    let result = HadamardResult { n, m, a, b, c, d };
+    let json = serde_json::to_string_pretty(&result).unwrap();
+    let mut file = File::create("result.json").expect("Unable to create file");
+    file.write_all(json.as_bytes()).expect("Unable to write data");
 }
